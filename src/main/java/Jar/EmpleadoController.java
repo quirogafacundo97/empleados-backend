@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import jakarta.validation.Valid;
+import Jar.dto.EmpleadoDTO;
 
 @RestController
 @RequestMapping("/api/v1/empleados") //definir una ruta base con version
@@ -22,7 +23,7 @@ public class EmpleadoController {
     }
 
     @GetMapping("/{id}") //el {id} significa que esa parte de la ruta es variable
-    public Empleado obtenerEmpleadoPorId(@PathVariable Long id){
+    public EmpleadoDTO obtenerEmpleadoPorId(@PathVariable Long id){
         return empleadoService.obtenerEmpleadoPorId(id);
     }
 
@@ -41,4 +42,23 @@ public class EmpleadoController {
         empleadoService.eliminarEmpleado(id);
     }
 
+    @GetMapping("/puesto/{puesto}")
+    public List<Empleado> obtenerEmpleadosPorPuesto(@PathVariable String puesto){
+        return empleadoService.buscarEmpleadoPorPuesto(puesto);
+    }
+
+    @GetMapping("/departamento/{nombre}")
+    public List<Empleado> obtenerEmpleadosPorDepartamento(@PathVariable String nombre){
+        return empleadoService.buscarEmpleadoPorDepartamento(nombre);
+    }
+
+    @GetMapping("/apellido/{prefijo}")
+    public List<Empleado>  obtenerEmpleadosPorPrefijo(@PathVariable String prefijo){
+        return empleadoService.apellidoStartingWith(prefijo);
+    }
+
+    @GetMapping("/apellido/{palabra}")
+    public List<Empleado> obtenerEmpleadosApellidoContaining(@PathVariable String palabra){
+        return empleadoService.apellidoContaining(palabra);
+    }
 }

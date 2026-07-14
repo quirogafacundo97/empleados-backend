@@ -79,7 +79,7 @@ public class Empleado {
 
     @ManyToOne
     @JoinColumn(name="departamento_id")//nombre de la columna en PostgreSQL
-    @JsonBackReference
+    @JsonBackReference//Define la clave foranea
     private Departamento departamento;
     public Departamento getDepartamento() {
         return this.departamento;
