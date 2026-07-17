@@ -13,7 +13,7 @@ import java.util.Map;
 public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> handleRuntimeException(RuntimeException ex){
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
             String mensaje = error.getDefaultMessage();
             errores.put(campo, mensaje);
         });
-        return new ResponseEntity<>(errores, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errores);
 
     }
 }

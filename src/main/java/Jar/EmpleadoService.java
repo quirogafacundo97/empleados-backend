@@ -22,17 +22,7 @@ public class EmpleadoService {
 
     public EmpleadoDTO obtenerEmpleadoPorId(Long id){
         Empleado empleado = empleadoRepository.findById(id).orElseThrow(()->new RuntimeException("No existe el empleado con el id: " + id));
-        EmpleadoDTO empleadoDTO = new EmpleadoDTO();
-        empleadoDTO.setId(empleado.getId());
-        empleadoDTO.setNombreCompleto(empleado.getNombre() + " " + empleado.getApellido());
-        empleadoDTO.setPuesto(empleado.getPuesto());
-        if(empleado.getDepartamento()!=null) {
-            empleadoDTO.setDepartamento(empleado.getDepartamento().getNombre());
-        }
-        else{
-            empleadoDTO.setDepartamento("Sin departamento");
-        }
-        return empleadoDTO;
+        return convertirEmpleadoDTO(empleado);
     }
 
     //recibe nuevo empleado y lo guarda en la base de datos usando el repositorio.
@@ -66,17 +56,69 @@ public class EmpleadoService {
     }
 
     //Buscar empleados por departamento
-    public List<Empleado> buscarEmpleadoPorDepartamento(String nombre){
-        return empleadoRepository.findByDepartamentoNombre(nombre);
+    public List<EmpleadoDTO> buscarEmpleadoPorDepartamento(String nombre){
+        List<Empleado> empleados = empleadoRepository.findByDepartamentoNombre(nombre);
+        List<EmpleadoDTO> empleadoDTOs = new ArrayList<>();
+        for(Empleado empleado : empleados){
+            empleadoDTOs.add(convertirEmpleadoDTO(empleado));
+        }
+        return empleadoDTOs;
     }
 
     //Buscar empleados cuyo apellido empiecen con un prefijo
-    public List<Empleado> apellidoStartingWith(String prefijo){
-        return empleadoRepository.findByApellidoStartingWith(prefijo);
+    public List<EmpleadoDTO> apellidoStartingWith(String prefijo){
+        List<Empleado> empleados = empleadoRepository.findByApellidoStartingWith(prefijo);
+        List<EmpleadoDTO> empleadoDTOs = new ArrayList<>();
+        for(Empleado empleado : empleados){
+            empleadoDTOs.add(convertirEmpleadoDTO(empleado));
+        }
+        return empleadoDTOs;
     }
 
     //Buscar empleados cuyo apellido contengan alguna palabra
-    public List<Empleado> apellidoContaining (String palabra){
-        return empleadoRepository.findByApellidoContaining(palabra);
+    public List<EmpleadoDTO> apellidoContaining (String palabra){
+        List<Empleado> empleados = empleadoRepository.findByApellidoContaining(palabra);
+        List<EmpleadoDTO> empleadoDTOs = new ArrayList<>();
+        for(Empleado empleado : empleados){
+            empleadoDTOs.add(convertirEmpleadoDTO(empleado));
+        }
+        return empleadoDTOs;
+    }
+
+    //Buscar empleados por puesto
+
+    public List<EmpleadoDTO> buscarPorPuesto(String puesto){
+        List<Empleado> empleados = empleadoRepository.findByPuesto(puesto);
+        List<EmpleadoDTO> empleadoDTOs = new ArrayList<>();
+
+        for (Empleado empleado : empleados) {
+            empleadoDTOs.add(convertirEmpleadoDTO(empleado));
+        }
+        return empleadoDTOs;
+    }
+
+    public List<EmpleadoDTO> buscarTodosLosEmpleados(){
+        List<Empleado> empleados = empleadoRepository.findAll();
+        List<EmpleadoDTO> empleadoDTOs = new ArrayList<>();
+
+        for (Empleado empleado : empleados) {
+            empleadoDTOs.add(convertirEmpleadoDTO(empleado));
+        }
+        return empleadoDTOs;
+    }
+
+    //Converite la Entidad Empleado a un EmpleadoDTO.
+    private EmpleadoDTO convertirEmpleadoDTO(Empleado empleado){
+        EmpleadoDTO empleadoDTO = new EmpleadoDTO();
+        empleadoDTO.setId(empleado.getId());
+        empleadoDTO.setNombreCompleto(empleado.getNombre() + " " + empleado.getApellido());
+        empleadoDTO.setPuesto(empleado.getPuesto());
+        if(empleado.getDepartamento()!=null) {
+            empleadoDTO.setDepartamento(empleado.getDepartamento().getNombre());
+        }
+        else{
+            empleadoDTO.setDepartamento("Sin departamento");
+        }
+        return empleadoDTO;
     }
 }

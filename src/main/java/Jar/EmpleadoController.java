@@ -1,6 +1,8 @@
 package Jar;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,15 +19,14 @@ public class EmpleadoController {
         this.empleadoService = empleadoService;
     }
 
-    @GetMapping
-    public List<Empleado> obtenerTodosLosEmpleados(){
-        return empleadoService.obtenerEmpleados();
+
+    //Obtener Empleados por id
+    @GetMapping({"/{id}"})
+    public ResponseEntity<EmpleadoDTO> obtenerEmpleadoPorId(@PathVariable Long id){
+        EmpleadoDTO empleadoDTO = empleadoService.obtenerEmpleadoPorId(id);
+        return ResponseEntity.ok(empleadoDTO);
     }
 
-    @GetMapping("/{id}") //el {id} significa que esa parte de la ruta es variable
-    public EmpleadoDTO obtenerEmpleadoPorId(@PathVariable Long id){
-        return empleadoService.obtenerEmpleadoPorId(id);
-    }
 
     @PostMapping
     public Empleado crearEmpleado(@Valid @RequestBody Empleado nuevoEmpleado){
@@ -38,27 +39,47 @@ public class EmpleadoController {
     }
 
     @DeleteMapping("{id}")
-    public void eliminarEmpleadoPorId(@PathVariable Long id){
+    public ResponseEntity<Void> eliminarEmpleadoPorId(@PathVariable Long id){
         empleadoService.eliminarEmpleado(id);
+        return ResponseEntity.noContent().build();
     }
 
+    //Obtener empleados por puesto usando PathVariable
     @GetMapping("/puesto/{puesto}")
-    public List<Empleado> obtenerEmpleadosPorPuesto(@PathVariable String puesto){
-        return empleadoService.buscarEmpleadoPorPuesto(puesto);
+    public ResponseEntity<List<EmpleadoDTO>> obtenerEmpleadosPorPuesto(@PathVariable String puesto){
+        List<EmpleadoDTO> empleados = empleadoService.buscarPorPuesto(puesto);
+        return ResponseEntity.ok(empleados);
     }
-
+    //Obtener empleados por nombre de departamento
     @GetMapping("/departamento/{nombre}")
-    public List<Empleado> obtenerEmpleadosPorDepartamento(@PathVariable String nombre){
-        return empleadoService.buscarEmpleadoPorDepartamento(nombre);
+    public ResponseEntity<List<EmpleadoDTO>> obtenerEmpleadosPorDepartamento(@PathVariable String nombre){
+        List<EmpleadoDTO> empleados = empleadoService.buscarEmpleadoPorDepartamento(nombre);
+        return ResponseEntity.ok(empleados);
+    }
+    //Obtener empleados por un apellido que tenga un determinado prefijo
+    @GetMapping("/apellido/prefijo/{prefijo}")
+    public ResponseEntity<List<EmpleadoDTO>>  obtenerEmpleadosPorPrefijo(@PathVariable String prefijo){
+        List<EmpleadoDTO> empleados = empleadoService.apellidoStartingWith(prefijo);
+        return ResponseEntity.ok(empleados);
     }
 
-    @GetMapping("/apellido/{prefijo}")
-    public List<Empleado>  obtenerEmpleadosPorPrefijo(@PathVariable String prefijo){
-        return empleadoService.apellidoStartingWith(prefijo);
+    @GetMapping("/apellido/contiene{palabra}")
+    public ResponseEntity<List<EmpleadoDTO>> obtenerEmpleadosApellidoContaining(@PathVariable String palabra){
+        List<EmpleadoDTO> empleados = empleadoService.apellidoContaining(palabra);
+        return ResponseEntity.ok(empleados);
     }
 
-    @GetMapping("/apellido/{palabra}")
-    public List<Empleado> obtenerEmpleadosApellidoContaining(@PathVariable String palabra){
-        return empleadoService.apellidoContaining(palabra);
+    // Obtener empleados por puesto usando RequestParam
+    @GetMapping("/buscar")
+    public ResponseEntity<List<EmpleadoDTO>> buscarEmpleadosPorPuesto(@RequestParam String puesto ){
+        List<EmpleadoDTO> empleadoDTOS = empleadoService.buscarPorPuesto(puesto);
+        return ResponseEntity.ok(empleadoDTOS);
+    }
+
+    //Obtener todos los Empleados
+    @GetMapping
+    public ResponseEntity<List<EmpleadoDTO>> listarTodosLosEmpleados(){
+        List<EmpleadoDTO> empleadoDTOS = empleadoService.buscarTodosLosEmpleados();
+        return ResponseEntity.ok(empleadoDTOS);
     }
 }
