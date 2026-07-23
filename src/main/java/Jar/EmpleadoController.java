@@ -44,33 +44,27 @@ public class EmpleadoController {
         return ResponseEntity.noContent().build();
     }
 
-    //Obtener empleados por puesto usando PathVariable
-    @GetMapping("/puesto/{puesto}")
-    public ResponseEntity<List<EmpleadoDTO>> obtenerEmpleadosPorPuesto(@PathVariable String puesto){
-        List<EmpleadoDTO> empleados = empleadoService.buscarPorPuesto(puesto);
-        return ResponseEntity.ok(empleados);
-    }
     //Obtener empleados por nombre de departamento
-    @GetMapping("/departamento/{nombre}")
-    public ResponseEntity<List<EmpleadoDTO>> obtenerEmpleadosPorDepartamento(@PathVariable String nombre){
-        List<EmpleadoDTO> empleados = empleadoService.buscarEmpleadoPorDepartamento(nombre);
-        return ResponseEntity.ok(empleados);
+    @GetMapping("/departamento")
+    public ResponseEntity<List<EmpleadoDTO>> obtenerEmpleadosPorDepartamento(@RequestParam String nombre){
+        List<EmpleadoDTO> empleadosDTOS = empleadoService.buscarEmpleadoPorDepartamento(nombre);
+        return ResponseEntity.ok(empleadosDTOS);
     }
     //Obtener empleados por un apellido que tenga un determinado prefijo
-    @GetMapping("/apellido/prefijo/{prefijo}")
-    public ResponseEntity<List<EmpleadoDTO>>  obtenerEmpleadosPorPrefijo(@PathVariable String prefijo){
+    @GetMapping("/apellido/prefijo")
+    public ResponseEntity<List<EmpleadoDTO>>  obtenerEmpleadosPorPrefijo(@RequestParam String prefijo){
         List<EmpleadoDTO> empleados = empleadoService.apellidoStartingWith(prefijo);
         return ResponseEntity.ok(empleados);
     }
 
-    @GetMapping("/apellido/contiene{palabra}")
-    public ResponseEntity<List<EmpleadoDTO>> obtenerEmpleadosApellidoContaining(@PathVariable String palabra){
-        List<EmpleadoDTO> empleados = empleadoService.apellidoContaining(palabra);
+    @GetMapping("/apellido/contiene")
+    public ResponseEntity<List<EmpleadoDTO>> obtenerEmpleadosApellidoContaining(@RequestParam String contienePalabra){
+        List<EmpleadoDTO> empleados = empleadoService.apellidoContaining(contienePalabra);
         return ResponseEntity.ok(empleados);
     }
 
     // Obtener empleados por puesto usando RequestParam
-    @GetMapping("/buscar")
+    @GetMapping("/buscar/puesto")
     public ResponseEntity<List<EmpleadoDTO>> buscarEmpleadosPorPuesto(@RequestParam String puesto ){
         List<EmpleadoDTO> empleadoDTOS = empleadoService.buscarPorPuesto(puesto);
         return ResponseEntity.ok(empleadoDTOS);
@@ -80,6 +74,12 @@ public class EmpleadoController {
     @GetMapping
     public ResponseEntity<List<EmpleadoDTO>> listarTodosLosEmpleados(){
         List<EmpleadoDTO> empleadoDTOS = empleadoService.buscarTodosLosEmpleados();
+        return ResponseEntity.ok(empleadoDTOS);
+    }
+
+    @GetMapping("/apellido")
+    public ResponseEntity<List<EmpleadoDTO>> buscarEmpleadosPorApellido(@RequestParam String apellido){
+        List<EmpleadoDTO> empleadoDTOS = empleadoService.obtenerEmpleadoPorApellido(apellido);
         return ResponseEntity.ok(empleadoDTOS);
     }
 }

@@ -4,15 +4,19 @@ import java.util.List;
 import java.util.ArrayList;
 
 import Jar.dto.EmpleadoDTO;
+import Jar.exception.DepartamentoNoEncontradoException;
+import Jar.exception.EmpleadoNoEncontradoException;
 import org.springframework.stereotype.Service;
 
 @Service// Le dice a Spring que esta clases es un componente de logica de negocio
 public class EmpleadoService {
     //Inyectar el repositorio
     private final EmpleadoRepository empleadoRepository;
+    private final DepartamentoRepository departamentoRepository;
 
-    public EmpleadoService(EmpleadoRepository empleadoRepository) {
+    public EmpleadoService(EmpleadoRepository empleadoRepository, DepartamentoRepository departamentoRepository) {
         this.empleadoRepository = empleadoRepository;
+        this.departamentoRepository = departamentoRepository;
     }
 
     //metodo para traer los datos de la BD real
@@ -21,7 +25,7 @@ public class EmpleadoService {
     }
 
     public EmpleadoDTO obtenerEmpleadoPorId(Long id){
-        Empleado empleado = empleadoRepository.findById(id).orElseThrow(()->new RuntimeException("No existe el empleado con el id: " + id));
+        Empleado empleado = empleadoRepository.findById(id).orElseThrow(()->new EmpleadoNoEncontradoException(id));
         return convertirEmpleadoDTO(empleado);
     }
 
@@ -32,7 +36,7 @@ public class EmpleadoService {
 
     //buscar un empleado viejo por su ID y cambiar algunos de dus datos.
     public Empleado actualizarEmpleado(long id, Empleado empleadoDetalles){
-        Empleado empleadoExistente = empleadoRepository.findById(id).orElseThrow(()->new RuntimeException("No existe el empleado con id: " + id));
+        Empleado empleadoExistente = empleadoRepository.findById(id).orElseThrow(()->new EmpleadoNoEncontradoException(id));
 
         //Le damos los campos con la nueva informacion
         empleadoExistente.setNombre(empleadoDetalles.getNombre());
@@ -45,7 +49,7 @@ public class EmpleadoService {
 
     //Elimina un empleado segun su id
     public void eliminarEmpleado(Long id){
-        Empleado empleado = empleadoRepository.findById(id).orElseThrow(()->new RuntimeException("No existe el empleado con id: " + id));
+        Empleado empleado = empleadoRepository.findById(id).orElseThrow(()->new EmpleadoNoEncontradoException(id));
 
         empleadoRepository.delete(empleado);
     }
@@ -57,6 +61,7 @@ public class EmpleadoService {
 
     //Buscar empleados por departamento
     public List<EmpleadoDTO> buscarEmpleadoPorDepartamento(String nombre){
+        departamentoRepository.findByNombre(nombre).orElseThrow(()->new DepartamentoNoEncontradoException(nombre));
         List<Empleado> empleados = empleadoRepository.findByDepartamentoNombre(nombre);
         List<EmpleadoDTO> empleadoDTOs = new ArrayList<>();
         for(Empleado empleado : empleados){
@@ -89,6 +94,10 @@ public class EmpleadoService {
 
     public List<EmpleadoDTO> buscarPorPuesto(String puesto){
         List<Empleado> empleados = empleadoRepository.findByPuesto(puesto);
+        if(empleados.isEmpty()){
+            throw new EmpleadoNoEncontradoException("puesto", puesto);
+        }
+
         List<EmpleadoDTO> empleadoDTOs = new ArrayList<>();
 
         for (Empleado empleado : empleados) {
@@ -120,5 +129,18 @@ public class EmpleadoService {
             empleadoDTO.setDepartamento("Sin departamento");
         }
         return empleadoDTO;
+    }
+
+    public List<EmpleadoDTO> obtenerEmpleadoPorApellido(String apellido){
+        List<Empleado> empleados = empleadoRepository.findByApellido(apellido);
+        if(empleados.isEmpty()){
+            throw new EmpleadoNoEncontradoException("apellido", apellido);
+        }
+        List<EmpleadoDTO> empleadosDTO = new ArrayList<>();
+
+        for(Empleado empleado : empleados){
+            empleadosDTO.add(convertirEmpleadoDTO(empleado));
+        }
+        return empleadosDTO;
     }
 }

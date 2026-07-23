@@ -10,5 +10,5 @@ public interface EmpleadoRepository extends JpaRepository<Empleado,Long>{
      public List<Empleado> findByDepartamentoNombre(String nombre);
      public List<Empleado> findByApellidoStartingWith(String apellido);
      public List<Empleado> findByApellidoContaining(String apellido);
-
+     public List<Empleado> findByApellido(String apellido);
 }

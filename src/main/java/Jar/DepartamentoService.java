@@ -1,6 +1,6 @@
 package Jar;
+import Jar.exception.DepartamentoNoEncontradoException;
 import org.springframework.stereotype.Service;
-
 
 import java.util.List;
 
@@ -16,7 +16,8 @@ public class DepartamentoService {
     }
 
     public Departamento obtenerDepartamentoPorId(Long id) {
-        return departamentoRepository.findById(id).orElseThrow(()->new RuntimeException("No existe el departamento con el id: " + id));
+        Departamento departamento=departamentoRepository.findById(id).orElseThrow(()->new DepartamentoNoEncontradoException(id));
+        return departamento;
     }
 
     public void eliminarDepartamento(Long id) {
@@ -35,4 +36,5 @@ public class DepartamentoService {
     public List<Departamento> obtenerDepartamentos() {
         return departamentoRepository.findAll();
     }
+
 }

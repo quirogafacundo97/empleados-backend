@@ -1,5 +1,7 @@
 package Jar;
 
+import Jar.exception.DepartamentoNoEncontradoException;
+import Jar.exception.EmpleadoNoEncontradoException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.http.HttpStatus;
@@ -11,8 +13,13 @@ import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<String> handleRuntimeException(RuntimeException ex){
+    @ExceptionHandler(EmpleadoNoEncontradoException.class)
+    public ResponseEntity<String> handleRuntimeException(EmpleadoNoEncontradoException ex){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(DepartamentoNoEncontradoException.class)
+    public ResponseEntity<String> handleRuntimeException(DepartamentoNoEncontradoException ex){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
