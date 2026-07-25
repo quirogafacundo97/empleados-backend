@@ -1,6 +1,7 @@
 package Jar;
 import java.util.List;
 
+import Jar.dto.EmpleadoRequestDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class EmpleadoController {
 
 
     //Obtener Empleados por id
-    @GetMapping({"/{id}"})
+    @GetMapping("/{id}")
     public ResponseEntity<EmpleadoDTO> obtenerEmpleadoPorId(@PathVariable Long id){
         EmpleadoDTO empleadoDTO = empleadoService.obtenerEmpleadoPorId(id);
         return ResponseEntity.ok(empleadoDTO);
@@ -29,16 +30,18 @@ public class EmpleadoController {
 
 
     @PostMapping
-    public Empleado crearEmpleado(@Valid @RequestBody Empleado nuevoEmpleado){
-        return empleadoService.guardarEmpleado(nuevoEmpleado);
+    public ResponseEntity<EmpleadoDTO> crearEmpleado(@Valid @RequestBody EmpleadoRequestDTO requestDTO){
+        EmpleadoDTO empleadoDTO = empleadoService.guardarEmpleado(requestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(empleadoDTO);
     }
 
-    @PutMapping("{id}")
-    public Empleado actualizarEmpleadoPorId(@PathVariable Long id,@Valid @RequestBody Empleado empleadoDetalles){
-        return empleadoService.actualizarEmpleado(id, empleadoDetalles);
+    @PutMapping("/{id}")
+    public ResponseEntity<EmpleadoDTO> actualizarEmpleadoPorId(@PathVariable Long id,@Valid @RequestBody EmpleadoRequestDTO requestDTO){
+        EmpleadoDTO empleadoDTO = empleadoService.actualizarEmpleado(id, requestDTO);
+        return ResponseEntity.ok(empleadoDTO);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarEmpleadoPorId(@PathVariable Long id){
         empleadoService.eliminarEmpleado(id);
         return ResponseEntity.noContent().build();

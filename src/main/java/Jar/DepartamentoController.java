@@ -25,12 +25,12 @@ public class DepartamentoController {
         return departamentoService.obtenerDepartamentoPorId(id);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public void eliminarDepartamento(@PathVariable Long id) {
         departamentoService.eliminarDepartamento(id);
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     public Departamento actualizarDepartamento(@Valid @RequestBody Departamento departamento, @PathVariable Long id) {
         return departamentoService.actualizarDepartamento(id, departamento);
     }

@@ -30,6 +30,11 @@ public class Empleado {
     @NotBlank(message = "El puesto no puede estar vacio")
     private String puesto;
 
+    @ManyToOne
+    @JoinColumn(name="departamento_id")//nombre de la columna en PostgreSQL
+    @JsonBackReference//Define la clave foranea
+    private Departamento departamento;
+
     //constructor vacio, Hibernate lo necesita para poder rellenar los datos cuando los lee de la BD
     public Empleado(){
 
@@ -75,15 +80,10 @@ public class Empleado {
         this.puesto = puesto;
     }
 
-
-
-    @ManyToOne
-    @JoinColumn(name="departamento_id")//nombre de la columna en PostgreSQL
-    @JsonBackReference//Define la clave foranea
-    private Departamento departamento;
     public Departamento getDepartamento() {
         return this.departamento;
     }
+
     public void setDepartamento(Departamento departamento) {
         this.departamento = departamento;
     }

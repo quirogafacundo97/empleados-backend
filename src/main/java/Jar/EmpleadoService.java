@@ -2,8 +2,10 @@ package Jar;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Optional;
 
 import Jar.dto.EmpleadoDTO;
+import Jar.dto.EmpleadoRequestDTO;
 import Jar.exception.DepartamentoNoEncontradoException;
 import Jar.exception.EmpleadoNoEncontradoException;
 import org.springframework.stereotype.Service;
@@ -30,20 +32,29 @@ public class EmpleadoService {
     }
 
     //recibe nuevo empleado y lo guarda en la base de datos usando el repositorio.
-    public Empleado guardarEmpleado(Empleado nuevoEmpleado){
-        return empleadoRepository.save(nuevoEmpleado);
+    public EmpleadoDTO guardarEmpleado(EmpleadoRequestDTO requestDTO){
+        Empleado empleado=convertirEmpleado(requestDTO);
+        Empleado empleadoGuardado = empleadoRepository.save(empleado);
+        return(convertirEmpleadoDTO(empleadoGuardado));
     }
 
     //buscar un empleado viejo por su ID y cambiar algunos de dus datos.
-    public Empleado actualizarEmpleado(long id, Empleado empleadoDetalles){
+    public EmpleadoDTO actualizarEmpleado(Long id, EmpleadoRequestDTO requestDTO){
         Empleado empleadoExistente = empleadoRepository.findById(id).orElseThrow(()->new EmpleadoNoEncontradoException(id));
+        Departamento departamento = departamentoRepository.findById(requestDTO.getDepartamentoId()).orElseThrow(()->new DepartamentoNoEncontradoException(requestDTO.getDepartamentoId()));
 
-        //Le damos los campos con la nueva informacion
-        empleadoExistente.setNombre(empleadoDetalles.getNombre());
-        empleadoExistente.setApellido(empleadoDetalles.getApellido());
-        empleadoExistente.setPuesto(empleadoDetalles.getPuesto());
-        empleadoExistente.setDepartamento(empleadoDetalles.getDepartamento());
-        return empleadoRepository.save(empleadoExistente);
+        //Actualizo los campos de empleadoExistente
+        empleadoExistente.setNombre(requestDTO.getNombre());
+        empleadoExistente.setApellido(requestDTO.getApellido());
+        empleadoExistente.setPuesto(requestDTO.getPuesto());
+        empleadoExistente.setDepartamento(departamento);
+
+        //Guardo los cambios en la base de datos
+        Empleado empleadoGuardado = empleadoRepository.save(empleadoExistente);
+
+        //Convierto la entidad Empleado a empleadoDTO
+
+        return convertirEmpleadoDTO(empleadoGuardado);
 
     }
 
@@ -52,11 +63,6 @@ public class EmpleadoService {
         Empleado empleado = empleadoRepository.findById(id).orElseThrow(()->new EmpleadoNoEncontradoException(id));
 
         empleadoRepository.delete(empleado);
-    }
-
-    //Buscar empleados por puesto
-    public List<Empleado> buscarEmpleadoPorPuesto(String puesto){
-        return empleadoRepository.findByPuesto(puesto);
     }
 
     //Buscar empleados por departamento
@@ -116,7 +122,7 @@ public class EmpleadoService {
         return empleadoDTOs;
     }
 
-    //Converite la Entidad Empleado a un EmpleadoDTO.
+    //Convierte la Entidad Empleado a un EmpleadoDTO.
     private EmpleadoDTO convertirEmpleadoDTO(Empleado empleado){
         EmpleadoDTO empleadoDTO = new EmpleadoDTO();
         empleadoDTO.setId(empleado.getId());
@@ -142,5 +148,18 @@ public class EmpleadoService {
             empleadosDTO.add(convertirEmpleadoDTO(empleado));
         }
         return empleadosDTO;
+    }
+
+    private Empleado convertirEmpleado(EmpleadoRequestDTO requestDTO){
+        Long dptoId = requestDTO.getDepartamentoId();
+        Departamento departamento = departamentoRepository.findById(dptoId).orElseThrow(()-> new DepartamentoNoEncontradoException(dptoId));
+
+        Empleado empleado = new Empleado();
+        empleado.setNombre(requestDTO.getNombre());
+        empleado.setApellido(requestDTO.getApellido());
+        empleado.setPuesto(requestDTO.getPuesto());
+        empleado.setDepartamento(departamento);
+
+        return empleado;
     }
 }
