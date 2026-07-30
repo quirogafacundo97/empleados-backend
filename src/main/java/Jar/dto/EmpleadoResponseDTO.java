@@ -1,12 +1,34 @@
 package Jar.dto;
 
-public class EmpleadoDTO {
+import io.swagger.v3.oas.annotations.media.Schema;
+
+public class EmpleadoResponseDTO {
+
+    @Schema(
+            description = "Identificador del empleado",
+            example = "5"
+    )
     private Long id;
+
+    @Schema(
+            description = "Nombre completo",
+            example = "Juan Pérez"
+    )
     private String nombreCompleto;
+
+    @Schema(
+            description = "Puesto del empleado",
+            example = "Backend Developer"
+    )
     private String puesto;
+
+    @Schema(
+            description = "Nombre del departamento",
+            example = "Marketing"
+    )
     private String departamento;
 
-    public EmpleadoDTO() {}
+    public EmpleadoResponseDTO() {}
 
     public void setId(Long id) {
         this.id = id;

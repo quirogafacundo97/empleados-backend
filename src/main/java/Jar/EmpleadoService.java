@@ -1,14 +1,16 @@
 package Jar;
 
+
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Optional;
 
-import Jar.dto.EmpleadoDTO;
+import Jar.dto.EmpleadoResponseDTO;
 import Jar.dto.EmpleadoRequestDTO;
 import Jar.exception.DepartamentoNoEncontradoException;
 import Jar.exception.EmpleadoNoEncontradoException;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
 
 @Service// Le dice a Spring que esta clases es un componente de logica de negocio
 public class EmpleadoService {
@@ -21,25 +23,20 @@ public class EmpleadoService {
         this.departamentoRepository = departamentoRepository;
     }
 
-    //metodo para traer los datos de la BD real
-    public List<Empleado> obtenerEmpleados(){
-        return empleadoRepository.findAll();
-    }
-
-    public EmpleadoDTO obtenerEmpleadoPorId(Long id){
+    public EmpleadoResponseDTO obtenerEmpleadoPorId(Long id){
         Empleado empleado = empleadoRepository.findById(id).orElseThrow(()->new EmpleadoNoEncontradoException(id));
         return convertirEmpleadoDTO(empleado);
     }
 
     //recibe nuevo empleado y lo guarda en la base de datos usando el repositorio.
-    public EmpleadoDTO guardarEmpleado(EmpleadoRequestDTO requestDTO){
+    public EmpleadoResponseDTO guardarEmpleado(EmpleadoRequestDTO requestDTO){
         Empleado empleado=convertirEmpleado(requestDTO);
         Empleado empleadoGuardado = empleadoRepository.save(empleado);
         return(convertirEmpleadoDTO(empleadoGuardado));
     }
 
     //buscar un empleado viejo por su ID y cambiar algunos de dus datos.
-    public EmpleadoDTO actualizarEmpleado(Long id, EmpleadoRequestDTO requestDTO){
+    public EmpleadoResponseDTO actualizarEmpleado(Long id, EmpleadoRequestDTO requestDTO){
         Empleado empleadoExistente = empleadoRepository.findById(id).orElseThrow(()->new EmpleadoNoEncontradoException(id));
         Departamento departamento = departamentoRepository.findById(requestDTO.getDepartamentoId()).orElseThrow(()->new DepartamentoNoEncontradoException(requestDTO.getDepartamentoId()));
 
@@ -66,87 +63,72 @@ public class EmpleadoService {
     }
 
     //Buscar empleados por departamento
-    public List<EmpleadoDTO> buscarEmpleadoPorDepartamento(String nombre){
+    public Page<EmpleadoResponseDTO> buscarEmpleadoPorDepartamento(String nombre, Pageable pageable){
         departamentoRepository.findByNombre(nombre).orElseThrow(()->new DepartamentoNoEncontradoException(nombre));
-        List<Empleado> empleados = empleadoRepository.findByDepartamentoNombre(nombre);
-        List<EmpleadoDTO> empleadoDTOs = new ArrayList<>();
-        for(Empleado empleado : empleados){
-            empleadoDTOs.add(convertirEmpleadoDTO(empleado));
-        }
-        return empleadoDTOs;
+        Page<Empleado> empleados = empleadoRepository.findByDepartamentoNombre(nombre, pageable);
+        Page<EmpleadoResponseDTO> empleadoResponseDTOS = empleados.map(this::convertirEmpleadoDTO);
+
+        return empleadoResponseDTOS;
     }
 
     //Buscar empleados cuyo apellido empiecen con un prefijo
-    public List<EmpleadoDTO> apellidoStartingWith(String prefijo){
+    public List<EmpleadoResponseDTO> apellidoStartingWith(String prefijo){
         List<Empleado> empleados = empleadoRepository.findByApellidoStartingWith(prefijo);
-        List<EmpleadoDTO> empleadoDTOs = new ArrayList<>();
-        for(Empleado empleado : empleados){
-            empleadoDTOs.add(convertirEmpleadoDTO(empleado));
-        }
-        return empleadoDTOs;
+        List<EmpleadoResponseDTO> empleadoResponseDTOS = empleados.stream().map(this::convertirEmpleadoDTO).toList();
+
+        return empleadoResponseDTOS;
     }
 
     //Buscar empleados cuyo apellido contengan alguna palabra
-    public List<EmpleadoDTO> apellidoContaining (String palabra){
+    public List<EmpleadoResponseDTO> apellidoContaining (String palabra){
         List<Empleado> empleados = empleadoRepository.findByApellidoContaining(palabra);
-        List<EmpleadoDTO> empleadoDTOs = new ArrayList<>();
-        for(Empleado empleado : empleados){
-            empleadoDTOs.add(convertirEmpleadoDTO(empleado));
-        }
-        return empleadoDTOs;
+        List<EmpleadoResponseDTO> empleadoResponseDTOS = empleados.stream().map(this::convertirEmpleadoDTO).toList();
+
+        return empleadoResponseDTOS;
     }
 
     //Buscar empleados por puesto
 
-    public List<EmpleadoDTO> buscarPorPuesto(String puesto){
+    public List<EmpleadoResponseDTO> buscarPorPuesto(String puesto){
         List<Empleado> empleados = empleadoRepository.findByPuesto(puesto);
         if(empleados.isEmpty()){
             throw new EmpleadoNoEncontradoException("puesto", puesto);
         }
 
-        List<EmpleadoDTO> empleadoDTOs = new ArrayList<>();
+        List<EmpleadoResponseDTO> empleadoResponseDTOS = empleados.stream().map(this::convertirEmpleadoDTO).toList();
 
-        for (Empleado empleado : empleados) {
-            empleadoDTOs.add(convertirEmpleadoDTO(empleado));
-        }
-        return empleadoDTOs;
+        return empleadoResponseDTOS;
     }
 
-    public List<EmpleadoDTO> buscarTodosLosEmpleados(){
-        List<Empleado> empleados = empleadoRepository.findAll();
-        List<EmpleadoDTO> empleadoDTOs = new ArrayList<>();
+    public Page<EmpleadoResponseDTO> buscarTodosLosEmpleados(Pageable pageable){
+        Page<Empleado> empleados = empleadoRepository.findAll(pageable);
+        Page<EmpleadoResponseDTO> empleadoResponseDTOS = empleados.map(this::convertirEmpleadoDTO);
 
-        for (Empleado empleado : empleados) {
-            empleadoDTOs.add(convertirEmpleadoDTO(empleado));
-        }
-        return empleadoDTOs;
+        return empleadoResponseDTOS;
     }
 
     //Convierte la Entidad Empleado a un EmpleadoDTO.
-    private EmpleadoDTO convertirEmpleadoDTO(Empleado empleado){
-        EmpleadoDTO empleadoDTO = new EmpleadoDTO();
-        empleadoDTO.setId(empleado.getId());
-        empleadoDTO.setNombreCompleto(empleado.getNombre() + " " + empleado.getApellido());
-        empleadoDTO.setPuesto(empleado.getPuesto());
+    private EmpleadoResponseDTO convertirEmpleadoDTO(Empleado empleado){
+        EmpleadoResponseDTO empleadoResponseDTO = new EmpleadoResponseDTO();
+        empleadoResponseDTO.setId(empleado.getId());
+        empleadoResponseDTO.setNombreCompleto(empleado.getNombre() + " " + empleado.getApellido());
+        empleadoResponseDTO.setPuesto(empleado.getPuesto());
         if(empleado.getDepartamento()!=null) {
-            empleadoDTO.setDepartamento(empleado.getDepartamento().getNombre());
+            empleadoResponseDTO.setDepartamento(empleado.getDepartamento().getNombre());
         }
         else{
-            empleadoDTO.setDepartamento("Sin departamento");
+            empleadoResponseDTO.setDepartamento("Sin departamento");
         }
-        return empleadoDTO;
+        return empleadoResponseDTO;
     }
 
-    public List<EmpleadoDTO> obtenerEmpleadoPorApellido(String apellido){
+    public List<EmpleadoResponseDTO> obtenerEmpleadoPorApellido(String apellido){
         List<Empleado> empleados = empleadoRepository.findByApellido(apellido);
         if(empleados.isEmpty()){
             throw new EmpleadoNoEncontradoException("apellido", apellido);
         }
-        List<EmpleadoDTO> empleadosDTO = new ArrayList<>();
+        List<EmpleadoResponseDTO> empleadosDTO = empleados.stream().map(this::convertirEmpleadoDTO).toList();
 
-        for(Empleado empleado : empleados){
-            empleadosDTO.add(convertirEmpleadoDTO(empleado));
-        }
         return empleadosDTO;
     }
 

@@ -1,7 +1,10 @@
 package Jar;
 import Jar.exception.DepartamentoNoEncontradoException;
 import org.springframework.stereotype.Service;
+import Jar.dto.DepartamentoResponseDTO;
+import Jar.dto.DepartamentoRequestDTO;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -11,30 +14,51 @@ public class DepartamentoService {
         this.departamentoRepository = departamentoRepository;
     }
 
-    public Departamento guardarDepartamento(Departamento departamento) {
-        return departamentoRepository.save(departamento);
+    public DepartamentoResponseDTO guardarDepartamento(DepartamentoRequestDTO requestDTO) {
+        Departamento departamento = convertirDepartamento(requestDTO);
+        Departamento departamentoGuardado = departamentoRepository.save(departamento);
+
+        return convertirDepartamentoDTO(departamentoGuardado);
     }
 
-    public Departamento obtenerDepartamentoPorId(Long id) {
+    public DepartamentoResponseDTO obtenerDepartamentoPorId(Long id) {
         Departamento departamento=departamentoRepository.findById(id).orElseThrow(()->new DepartamentoNoEncontradoException(id));
-        return departamento;
+
+        return convertirDepartamentoDTO(departamento);
     }
 
     public void eliminarDepartamento(Long id) {
-        Departamento departamento = departamentoRepository.findById(id).orElseThrow(()->new RuntimeException("No existe el departamento con id: " + id));
+        departamentoRepository.findById(id).orElseThrow(()->new DepartamentoNoEncontradoException(id));
 
         departamentoRepository.deleteById(id);
     }
 
-    public Departamento actualizarDepartamento(Long id, Departamento departamento) {
-        Departamento departamentoExistente = departamentoRepository.findById(id).orElseThrow(()->new RuntimeException("No existe el departamento con id: " + id));
+    public DepartamentoResponseDTO actualizarDepartamento(Long id, DepartamentoRequestDTO requestDTO) {
+        Departamento departamentoExistente = departamentoRepository.findById(id).orElseThrow(()->new DepartamentoNoEncontradoException(id));
 
-        departamentoExistente.setNombre(departamento.getNombre());
-        return  departamentoRepository.save(departamentoExistente);
+        departamentoExistente.setNombre(requestDTO.getNombre());
+        Departamento departamentoActualizado = departamentoRepository.save(departamentoExistente);
+        return  convertirDepartamentoDTO(departamentoActualizado);
     }
 
-    public List<Departamento> obtenerDepartamentos() {
-        return departamentoRepository.findAll();
+    public List<DepartamentoResponseDTO> obtenerDepartamentos() {
+        List<Departamento> departamentos = departamentoRepository.findAll();
+        List<DepartamentoResponseDTO> responseDTOS = departamentos.stream().map(this::convertirDepartamentoDTO).toList();
+
+        return responseDTOS;
+    }
+
+    private Departamento convertirDepartamento(DepartamentoRequestDTO requestDTO){
+        Departamento departamento = new Departamento();
+        departamento.setNombre(requestDTO.getNombre());
+        return departamento;
+    }
+
+    private DepartamentoResponseDTO convertirDepartamentoDTO(Departamento departamento){
+        DepartamentoResponseDTO dto = new DepartamentoResponseDTO();
+        dto.setNombre(departamento.getNombre());
+        dto.setId(departamento.getId());
+        return dto;
     }
 
 }
