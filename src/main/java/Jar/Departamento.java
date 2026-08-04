@@ -3,8 +3,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+
 @Entity
 @Table(name = "departamentos")
 public class Departamento {
@@ -12,8 +11,7 @@ public class Departamento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "El nombre del departamento no puede estar vacio")
-    @Size(min = 2, message = "El nombre debe tener al menos 2 caracteres")
+    @Column(nullable = false)
     private String nombre;
 
     //Relacion inversa, para ver empleados desde el departamento.
@@ -35,5 +33,12 @@ public class Departamento {
     }
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+    public List<Empleado> getEmpleados(){
+        return empleados;
+    }
+
+    public void setEmpleados(List<Empleado> empleados){
+        this.empleados = empleados;
     }
 }

@@ -72,30 +72,35 @@ public class EmpleadoService {
     }
 
     //Buscar empleados cuyo apellido empiecen con un prefijo
-    public List<EmpleadoResponseDTO> apellidoStartingWith(String prefijo){
-        List<Empleado> empleados = empleadoRepository.findByApellidoStartingWith(prefijo);
-        List<EmpleadoResponseDTO> empleadoResponseDTOS = empleados.stream().map(this::convertirEmpleadoDTO).toList();
+    public Page<EmpleadoResponseDTO> apellidoStartingWith(String prefijo, Pageable pageable){
+        Page<Empleado> empleados = empleadoRepository.findByApellidoStartingWith(prefijo, pageable);
+        Page<EmpleadoResponseDTO> empleadoResponseDTOS = empleados.map(this::convertirEmpleadoDTO);
+        if(empleadoResponseDTOS.isEmpty()){
+            throw new EmpleadoNoEncontradoException("apellido que comience con", prefijo);
+        }
 
         return empleadoResponseDTOS;
     }
 
     //Buscar empleados cuyo apellido contengan alguna palabra
-    public List<EmpleadoResponseDTO> apellidoContaining (String palabra){
-        List<Empleado> empleados = empleadoRepository.findByApellidoContaining(palabra);
-        List<EmpleadoResponseDTO> empleadoResponseDTOS = empleados.stream().map(this::convertirEmpleadoDTO).toList();
-
+    public Page<EmpleadoResponseDTO> apellidoContaining (String palabra, Pageable pageable){
+        Page<Empleado> empleados = empleadoRepository.findByApellidoContaining(palabra,pageable);
+        Page<EmpleadoResponseDTO> empleadoResponseDTOS = empleados.map(this::convertirEmpleadoDTO);
+        if(empleadoResponseDTOS.isEmpty()){
+            throw new EmpleadoNoEncontradoException("apellido que contenga", palabra);
+        }
         return empleadoResponseDTOS;
     }
 
     //Buscar empleados por puesto
 
-    public List<EmpleadoResponseDTO> buscarPorPuesto(String puesto){
-        List<Empleado> empleados = empleadoRepository.findByPuesto(puesto);
+    public Page<EmpleadoResponseDTO> buscarPorPuesto(String puesto, Pageable pageable){
+        Page<Empleado> empleados = empleadoRepository.findByPuesto(puesto, pageable);
         if(empleados.isEmpty()){
             throw new EmpleadoNoEncontradoException("puesto", puesto);
         }
 
-        List<EmpleadoResponseDTO> empleadoResponseDTOS = empleados.stream().map(this::convertirEmpleadoDTO).toList();
+        Page<EmpleadoResponseDTO> empleadoResponseDTOS = empleados.map(this::convertirEmpleadoDTO);
 
         return empleadoResponseDTOS;
     }
@@ -108,7 +113,7 @@ public class EmpleadoService {
     }
 
     //Convierte la Entidad Empleado a un EmpleadoDTO.
-    private EmpleadoResponseDTO convertirEmpleadoDTO(Empleado empleado){
+    public EmpleadoResponseDTO convertirEmpleadoDTO(Empleado empleado){
         EmpleadoResponseDTO empleadoResponseDTO = new EmpleadoResponseDTO();
         empleadoResponseDTO.setId(empleado.getId());
         empleadoResponseDTO.setNombreCompleto(empleado.getNombre() + " " + empleado.getApellido());
@@ -122,12 +127,12 @@ public class EmpleadoService {
         return empleadoResponseDTO;
     }
 
-    public List<EmpleadoResponseDTO> obtenerEmpleadoPorApellido(String apellido){
-        List<Empleado> empleados = empleadoRepository.findByApellido(apellido);
+    public Page<EmpleadoResponseDTO> obtenerEmpleadoPorApellido(String apellido, Pageable pageable){
+        Page<Empleado> empleados = empleadoRepository.findByApellido(apellido, pageable);
         if(empleados.isEmpty()){
             throw new EmpleadoNoEncontradoException("apellido", apellido);
         }
-        List<EmpleadoResponseDTO> empleadosDTO = empleados.stream().map(this::convertirEmpleadoDTO).toList();
+        Page<EmpleadoResponseDTO> empleadosDTO = empleados.map(this::convertirEmpleadoDTO);
 
         return empleadosDTO;
     }

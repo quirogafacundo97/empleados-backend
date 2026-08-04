@@ -3,8 +3,12 @@ package Jar;
 import java.util.List;
 
 import Jar.dto.EmpleadoRequestDTO;
+import Jar.dto.ErrorResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -44,8 +48,28 @@ public class EmpleadoController {
             description = "Obtiene un empleado a partir de su ID"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "404", description = "Empleado no encontrado"),
-            @ApiResponse(responseCode = "200", description = "Empleado encontrado")
+        @ApiResponse(
+            responseCode = "404",
+            description = "Empleado no encontrado",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ErrorResponseDTO.class),
+                examples = @ExampleObject(
+                    value= """
+                    {
+                        "status": 404,
+                        "message": "No existe el empleado con el id: 10",
+                        "timestamp": "2026-07-31T01:50:00",
+                        "path": "/api/v1/empleados/10"
+                    }
+                    """
+                )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "200",
+            description = "Empleado encontrado"
+        )
     })
     @GetMapping("/{id}")
     public ResponseEntity<EmpleadoResponseDTO> obtenerEmpleadoPorId(@Parameter(description = "ID del empleado", example = "5") @PathVariable Long id){
@@ -58,9 +82,46 @@ public class EmpleadoController {
             description = "Crea un empleado y lo asocia a un departamento existente"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Empleado creado correctamente"),
-            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
-            @ApiResponse(responseCode = "404", description = "Departamento no encontrado")
+        @ApiResponse(responseCode = "201", description = "Empleado creado correctamente"),
+        @ApiResponse(
+                responseCode = "400",
+                description = "Datos de entrada inválidos",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class),
+                    examples = @ExampleObject(
+                        value = """
+                        {
+                            "status": 400,
+                            "message": "Error de validacion en los campos enviados",
+                            "timestamp": "2026-07-31T01:50:00",
+                            "path": "/api/v1/empleados",
+                            "details": {
+                                "nombre": "El nombre es obligatorio"
+                            }
+                        }
+                        """
+                    )
+                )
+            ),
+        @ApiResponse(
+                responseCode = "404",
+                description = "Departamento no encontrado",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class),
+                    examples = @ExampleObject(
+                        value= """
+                            {
+                                "status": 404,
+                                "message": "No existe el departamento con el id: 10",
+                                "timestamp": "2026-07-31T01:50:00",
+                                "path": "/api/v1/empleados/10"
+                            }
+                            """
+                        )
+                    )
+            )
     })
     @PostMapping
     public ResponseEntity<EmpleadoResponseDTO> crearEmpleado(@Valid @RequestBody EmpleadoRequestDTO requestDTO){
@@ -74,8 +135,44 @@ public class EmpleadoController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Empleado actualizado correctamente"),
-            @ApiResponse(responseCode = "404", description = "Empleado o departamento no encontrado"),
-            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos")
+            @ApiResponse(responseCode = "400",
+                    description = "Datos de entrada inválidos",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(
+                                    value = """
+                        {
+                            "status": 400,
+                            "message": "Error de validacion en los campos enviados",
+                            "timestamp": "2026-07-31T01:50:00",
+                            "path": "/api/v1/empleados",
+                            "details": {
+                                "nombre": "El nombre es obligatorio"
+                            }
+                        }
+                        """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Empleado no encontrado",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(
+                                    value= """
+                            {
+                                "status": 404,
+                                "message": "No existe el empleado con el id: 10",
+                                "timestamp": "2026-07-31T01:50:00",
+                                "path": "/api/v1/empleados/10"
+                            }
+                            """
+                            )
+                    )
+            )
     })
     @PutMapping("/{id}")
     public ResponseEntity<EmpleadoResponseDTO> actualizarEmpleadoPorId(@Parameter(description = "ID del empleado a actualizar", example = "5")@PathVariable Long id, @Valid @RequestBody EmpleadoRequestDTO requestDTO){
@@ -88,7 +185,24 @@ public class EmpleadoController {
             description = "Eliminar un empleado a partir de su ID"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "404", description = "Empleado a eliminar no encontrado"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Empleado no encontrado",
+                    content = @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = ErrorResponseDTO.class),
+                        examples = @ExampleObject(
+                            value= """
+                            {
+                                "status": 404,
+                                "message": "No existe el empleado con el id: 10",
+                                "timestamp": "2026-07-31T01:50:00",
+                                "path": "/api/v1/empleados/10"
+                            }
+                            """
+                        )
+                    )
+            ),
             @ApiResponse(responseCode = "204", description = "Empleado eliminado correctamente")
     })
     @DeleteMapping("/{id}")
@@ -102,8 +216,25 @@ public class EmpleadoController {
             description = "Buscar empleados por nombre de departamento"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "404", description = "Departamento no encontrado"),
-            @ApiResponse(responseCode = "200", description = "Lista de empleados obtenida correctamente")
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Departamento no encontrado",
+                    content = @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = ErrorResponseDTO.class),
+                        examples = @ExampleObject(
+                            value= """
+                            {
+                                "status": 404,
+                                "message": "No existe el departamento: Marketing",
+                                "timestamp": "2026-07-31T01:50:00",
+                                "path": "/api/v1/empleados/10"
+                            }
+                            """
+                        )
+                    )
+            ),
+            @ApiResponse(responseCode = "200", description = "Lista de empleados obtenida correctamente", content = @Content(mediaType = "application/json"))
     })
     //Obtener empleados por nombre de departamento
     @GetMapping("/departamento")
@@ -117,12 +248,35 @@ public class EmpleadoController {
             description = "Obtener empleados por prefijo en el apellido"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Lista de empleados obtenida correctamente")
+            @ApiResponse(
+                responseCode = "200",
+                description = "Lista de empleados obtenida correctamente"),
+
+            @ApiResponse(
+                responseCode = "404",
+                description = "No existen apellidos con el prefijo ingresado",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class),
+                    examples = @ExampleObject(
+                        value= """
+                            {
+                                "status": 404,
+                                "message": "No se encontraron empleados cuyo apellido comienza con: Mar",
+                                "timestamp": "2026-07-31T01:50:00",
+                                "path": "/api/v1/empleados/10"
+                            }
+                            """
+                    )
+                )
+
+            )
+
     })
     //Obtener empleados por un apellido que tenga un determinado prefijo
     @GetMapping("/apellido/prefijo")
-    public ResponseEntity<List<EmpleadoResponseDTO>>  obtenerEmpleadosPorPrefijo(@Parameter(description = "Prefijo de apellido", example = "Qui")@RequestParam String prefijo){
-        List<EmpleadoResponseDTO> empleados = empleadoService.apellidoStartingWith(prefijo);
+    public ResponseEntity<Page<EmpleadoResponseDTO>>  obtenerEmpleadosPorPrefijo(@Parameter(description = "Prefijo de apellido", example = "Qui")@RequestParam String prefijo, @ParameterObject @PageableDefault(page = 0,size = 3, sort = "apellido", direction = Sort.Direction.ASC) Pageable pageable){
+        Page<EmpleadoResponseDTO> empleados = empleadoService.apellidoStartingWith(prefijo, pageable);
         return ResponseEntity.ok(empleados);
     }
 
@@ -131,11 +285,33 @@ public class EmpleadoController {
             description = "Buscar empleados cuyo apellido contengan una cadena buscada"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Lista de empleados obtenida correctamente")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Lista de empleados obtenida correctamente"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "No se encontraron empleados cuyo apellido contenga la palabra ingresada",
+                    content = @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = ErrorResponseDTO.class),
+                        examples = @ExampleObject(
+                            value= """
+                            {
+                                "status": 404,
+                                "message": "No se encontraron empleados con apellido que contenga: rez",
+                                "timestamp": "2026-07-31T01:50:00",
+                                "path": "/api/v1/empleados/10"
+                            }
+                            """
+                        )
+                    )
+            )
+
     })
     @GetMapping("/apellido/contiene")
-    public ResponseEntity<List<EmpleadoResponseDTO>> obtenerEmpleadosApellidoContaining(@Parameter(description = "Palabra que contenga el apellido", example = "rod")@RequestParam String contienePalabra){
-        List<EmpleadoResponseDTO> empleados = empleadoService.apellidoContaining(contienePalabra);
+    public ResponseEntity<Page<EmpleadoResponseDTO>> obtenerEmpleadosApellidoContaining(@Parameter(description = "Palabra que contenga el apellido", example = "rod")@RequestParam String contienePalabra, @ParameterObject @PageableDefault(page = 0,size = 3, sort = "apellido", direction = Sort.Direction.ASC) Pageable pageable){
+        Page<EmpleadoResponseDTO> empleados = empleadoService.apellidoContaining(contienePalabra, pageable);
         return ResponseEntity.ok(empleados);
     }
 
@@ -144,13 +320,30 @@ public class EmpleadoController {
             description = "Buscar empleados por puesto"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "404", description = "No hay empleados en ese puesto"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Puesto no encontrado",
+                    content = @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = ErrorResponseDTO.class),
+                        examples = @ExampleObject(
+                            value= """
+                            {
+                                "status": 404,
+                                "message": "No se encontraron empleados con el puesto: Frontend",
+                                "timestamp": "2026-07-31T01:50:00",
+                                "path": "/api/v1/empleados/10"
+                            }
+                            """
+                        )
+                    )
+            ),
             @ApiResponse(responseCode = "200", description = "Lista de empleados obtenida correctamente")
     })
     // Obtener empleados por puesto usando RequestParam
     @GetMapping("/buscar/puesto")
-    public ResponseEntity<List<EmpleadoResponseDTO>> buscarEmpleadosPorPuesto(@Parameter(description = "Nombre del puesto", example = "Junior Backend")@RequestParam String puesto ){
-        List<EmpleadoResponseDTO> empleadoResponseDTOS = empleadoService.buscarPorPuesto(puesto);
+    public ResponseEntity<Page<EmpleadoResponseDTO>> buscarEmpleadosPorPuesto(@Parameter(description = "Nombre del puesto", example = "Junior Backend")@RequestParam String puesto, @ParameterObject @PageableDefault(page = 0,size = 3, sort = "puesto", direction = Sort.Direction.ASC) Pageable pageable){
+        Page<EmpleadoResponseDTO> empleadoResponseDTOS = empleadoService.buscarPorPuesto(puesto, pageable);
         return ResponseEntity.ok(empleadoResponseDTOS);
     }
 
@@ -173,12 +366,29 @@ public class EmpleadoController {
             description = "Buscar empleados por apellido"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "404", description = "No hay empleados con el apellido solicitado"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Apellido no encontrado",
+                    content = @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = ErrorResponseDTO.class),
+                        examples = @ExampleObject(
+                            value= """
+                            {
+                                "status": 404,
+                                "message": "No se encontraron empleados con el apellido: Gimenez",
+                                "timestamp": "2026-07-31T01:50:00",
+                                "path": "/api/v1/empleados/10"
+                            }
+                            """
+                        )
+                    )
+            ),
             @ApiResponse(responseCode = "200", description = "Lista de empleados obtenida correctamente")
     })
     @GetMapping("/apellido")
-    public ResponseEntity<List<EmpleadoResponseDTO>> buscarEmpleadosPorApellido(@Parameter(description = "Apellido de empleados a buscar", example = "Quiroga")@RequestParam String apellido){
-        List<EmpleadoResponseDTO> empleadoResponseDTOS = empleadoService.obtenerEmpleadoPorApellido(apellido);
+    public ResponseEntity<Page<EmpleadoResponseDTO>> buscarEmpleadosPorApellido(@Parameter(description = "Apellido de empleados a buscar", example = "Quiroga")@RequestParam String apellido, @ParameterObject @PageableDefault(page = 0,size = 3, sort = "apellido", direction = Sort.Direction.ASC) Pageable pageable){
+        Page<EmpleadoResponseDTO> empleadoResponseDTOS = empleadoService.obtenerEmpleadoPorApellido(apellido, pageable);
         return ResponseEntity.ok(empleadoResponseDTOS);
     }
 }

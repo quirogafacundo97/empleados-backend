@@ -8,9 +8,9 @@ import java.util.List;
 
 @Repository //Le avisamos a Spring que este componente maneja la BD
 public interface EmpleadoRepository extends JpaRepository<Empleado,Long>{
-    List<Empleado> findByPuesto(String puesto);
+    Page<Empleado> findByPuesto(String puesto, Pageable pageable);
     Page<Empleado> findByDepartamentoNombre(String nombre, Pageable pageable);
-    List<Empleado> findByApellidoStartingWith(String apellido);
-    List<Empleado> findByApellidoContaining(String apellido);
-    List<Empleado> findByApellido(String apellido);
+    Page<Empleado> findByApellidoStartingWith(String apellido, Pageable pageable);
+    Page<Empleado> findByApellidoContaining(String apellido, Pageable pageable);
+    Page<Empleado> findByApellido(String apellido, Pageable pageable);
 }

@@ -1,16 +1,7 @@
 package Jar;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Table;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.JoinColumn;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-
+import jakarta.persistence.*;
 
 @Entity//le dice a hibernate que esta clase es una tabla en la BD
 @Table(name = "empleados")
@@ -20,18 +11,17 @@ public class Empleado {
     @GeneratedValue(strategy = GenerationType.IDENTITY)//la pk sea autoincremental
     private Long id;
 
-    @NotBlank(message = "El nombre no puede estar vacio")
-    @Size(min = 2, message = "El nombre debe tener a menos 2 caracteres")
+    @Column(nullable = false)
     private String nombre;
 
-    @NotBlank(message = "El apellido no puede estar vacio")
+    @Column(nullable = false)
     private String apellido;
 
-    @NotBlank(message = "El puesto no puede estar vacio")
+    @Column(nullable = false)
     private String puesto;
 
-    @ManyToOne
-    @JoinColumn(name="departamento_id")//nombre de la columna en PostgreSQL
+    @ManyToOne(optional = false)
+    @JoinColumn(name="departamento_id", nullable = false)//nombre de la columna en PostgreSQL
     @JsonBackReference//Define la clave foranea
     private Departamento departamento;
 

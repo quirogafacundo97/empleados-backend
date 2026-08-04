@@ -1,39 +1,64 @@
 package Jar;
 
+import Jar.dto.ErrorResponseDTO;
 import Jar.exception.DepartamentoNoEncontradoException;
 import Jar.exception.EmpleadoNoEncontradoException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(EmpleadoNoEncontradoException.class)
-    public ResponseEntity<String> handleRuntimeException(EmpleadoNoEncontradoException ex){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    public ResponseEntity<ErrorResponseDTO> handleEmpleadoNoEncontrado(EmpleadoNoEncontradoException ex, HttpServletRequest request){
+
+        ErrorResponseDTO error = new ErrorResponseDTO();
+        error.setStatus(HttpStatus.NOT_FOUND.value());
+        error.setMessage(ex.getMessage());
+        error.setTimestamp(LocalDateTime.now());
+        error.setPath(request.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
     @ExceptionHandler(DepartamentoNoEncontradoException.class)
-    public ResponseEntity<String> handleRuntimeException(DepartamentoNoEncontradoException ex){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    public ResponseEntity<ErrorResponseDTO> handleDepartamentoNoEncontrado(DepartamentoNoEncontradoException ex, HttpServletRequest request){
+
+        ErrorResponseDTO error = new ErrorResponseDTO();
+        error.setStatus(HttpStatus.NOT_FOUND.value());
+        error.setMessage(ex.getMessage());
+        error.setTimestamp(LocalDateTime.now());
+        error.setPath(request.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-        Map<String, String> errores = new HashMap<>();
+    public ResponseEntity<ErrorResponseDTO> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, HttpServletRequest request) {
 
-        //Recorremos cada campo que falló y guardamos su nombre junto al mensaje
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String campo = ((FieldError) error).getField();
-            String mensaje = error.getDefaultMessage();
-            errores.put(campo, mensaje);
-        });
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errores);
+        Map<String, String> erroresPorCampo = new HashMap<>();
+
+        for(FieldError fieldError : ex.getBindingResult().getFieldErrors()){
+            erroresPorCampo.put(fieldError.getField(), fieldError.getDefaultMessage());
+        }
+
+        ErrorResponseDTO error = new ErrorResponseDTO();
+        error.setStatus(HttpStatus.BAD_REQUEST.value());
+        error.setMessage("Error de validacion en los campos enviados");
+        error.setDetails(erroresPorCampo);
+        error.setTimestamp(LocalDateTime.now());
+        error.setPath(request.getRequestURI());
+
+        return ResponseEntity.badRequest().body(error);
 
     }
 }

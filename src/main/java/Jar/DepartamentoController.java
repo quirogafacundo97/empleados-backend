@@ -1,8 +1,12 @@
 package Jar;
+import Jar.dto.DepartamentoConEmpleadosDTO;
 import Jar.dto.DepartamentoRequestDTO;
 import Jar.dto.DepartamentoResponseDTO;
+import Jar.dto.ErrorResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,7 +37,7 @@ public class DepartamentoController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Departamento creado correctamente"),
-            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos")
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @PostMapping
     public ResponseEntity<DepartamentoResponseDTO> crearDepartamento(@Valid @RequestBody DepartamentoRequestDTO requestDTO){
@@ -47,10 +51,10 @@ public class DepartamentoController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Departamento encontrado"),
-            @ApiResponse(responseCode = "404", description = "Departamento no encontrado")
+            @ApiResponse(responseCode = "404", description = "Departamento no encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @GetMapping("/{id}")
-    public ResponseEntity<DepartamentoResponseDTO> obtenerDepartamento(@Parameter(description = "ID del departamento", example = "3") @PathVariable Long id) {
+    public ResponseEntity<DepartamentoConEmpleadosDTO> obtenerDepartamento(@Parameter(description = "ID del departamento", example = "3") @PathVariable Long id) {
         return ResponseEntity.ok(departamentoService.obtenerDepartamentoPorId(id));
     }
 
@@ -59,7 +63,7 @@ public class DepartamentoController {
             description = "Elimina un departamento por su ID"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "404", description = "Departamento inexistente"),
+            @ApiResponse(responseCode = "404", description = "Departamento inexistente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "204", description = "Departamento eliminado correctamente")
     })
     @DeleteMapping("/{id}")
@@ -74,8 +78,8 @@ public class DepartamentoController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Departamento actualizado correctamente"),
-            @ApiResponse(responseCode = "404", description = "Departamento a actualizar inexistente"),
-            @ApiResponse(responseCode = "400", description = "Datos de entrada invalidos")
+            @ApiResponse(responseCode = "404", description = "Departamento a actualizar inexistente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada invalidos", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @PutMapping("/{id}")
     public ResponseEntity<DepartamentoResponseDTO> actualizarDepartamento(@Valid @RequestBody DepartamentoRequestDTO requestDTO, @Parameter(description = "ID del departamento a actualizar")@PathVariable Long id) {
