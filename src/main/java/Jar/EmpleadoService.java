@@ -1,9 +1,6 @@
 package Jar;
 
 
-import java.util.List;
-import java.util.ArrayList;
-
 import Jar.dto.EmpleadoResponseDTO;
 import Jar.dto.EmpleadoRequestDTO;
 import Jar.exception.DepartamentoNoEncontradoException;
