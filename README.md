@@ -1,6 +1,6 @@
 # 👨‍💼 Gestión de Empleados API
 
-API REST desarrollada con **Java 24** y **Spring Boot 4** para la gestión de empleados y departamentos.
+API REST desarrollada con **Java 21** y **Spring Boot 4** para la gestión de empleados y departamentos.
 
 El proyecto implementa una arquitectura por capas utilizando Spring Boot, Spring Data JPA y PostgreSQL, incorporando buenas prácticas como el uso de DTOs, validación de datos, manejo global de excepciones, paginación y documentación interactiva con Swagger/OpenAPI.
 
@@ -27,7 +27,7 @@ El proyecto implementa una arquitectura por capas utilizando Spring Boot, Spring
 
 ## 🛠 Tecnologías
 
-* Java 24
+* Java 21
 * Spring Boot 4
 * Spring Data JPA
 * Hibernate
