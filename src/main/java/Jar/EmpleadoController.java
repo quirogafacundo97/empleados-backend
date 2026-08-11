@@ -227,13 +227,13 @@ public class EmpleadoController {
                                 "status": 404,
                                 "message": "No existe el departamento: Marketing",
                                 "timestamp": "2026-07-31T01:50:00",
-                                "path": "/api/v1/empleados/10"
+                                "path": "/api/v1/empleados/departamento"
                             }
                             """
                         )
                     )
             ),
-            @ApiResponse(responseCode = "200", description = "Lista de empleados obtenida correctamente", content = @Content(mediaType = "application/json"))
+            @ApiResponse(responseCode = "200", description = "Lista de empleados obtenida correctamente")
     })
     //Obtener empleados por nombre de departamento
     @GetMapping("/departamento")
@@ -263,7 +263,7 @@ public class EmpleadoController {
                                 "status": 404,
                                 "message": "No se encontraron empleados cuyo apellido comienza con: Mar",
                                 "timestamp": "2026-07-31T01:50:00",
-                                "path": "/api/v1/empleados/10"
+                                "path": "/api/v1/empleados/apellido/prefijo"
                             }
                             """
                     )
@@ -300,7 +300,7 @@ public class EmpleadoController {
                                 "status": 404,
                                 "message": "No se encontraron empleados con apellido que contenga: rez",
                                 "timestamp": "2026-07-31T01:50:00",
-                                "path": "/api/v1/empleados/10"
+                                "path": "/api/v1/empleados/apellido/contiene"
                             }
                             """
                         )
@@ -331,7 +331,7 @@ public class EmpleadoController {
                                 "status": 404,
                                 "message": "No se encontraron empleados con el puesto: Frontend",
                                 "timestamp": "2026-07-31T01:50:00",
-                                "path": "/api/v1/empleados/10"
+                                "path": "/api/v1/empleados/buscar/puesto"
                             }
                             """
                         )
@@ -377,7 +377,7 @@ public class EmpleadoController {
                                 "status": 404,
                                 "message": "No se encontraron empleados con el apellido: Gimenez",
                                 "timestamp": "2026-07-31T01:50:00",
-                                "path": "/api/v1/empleados/10"
+                                "path": "/api/v1/empleados/apellido"
                             }
                             """
                         )

@@ -10,13 +10,17 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import jakarta.validation.Valid;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Tag(
         name = "Departamentos",
@@ -93,8 +97,8 @@ public class DepartamentoController {
             @ApiResponse(responseCode = "200", description = "Lista de departamentos obtenida correctamente")
     })
     @GetMapping
-    public ResponseEntity<List<DepartamentoResponseDTO>> obtenerDepartamentos() {
-        return ResponseEntity.ok(departamentoService.obtenerDepartamentos());
+    public ResponseEntity<Page<DepartamentoResponseDTO>> obtenerDepartamentos(@ParameterObject @PageableDefault(page = 0, size = 5, sort = "nombre", direction = Sort.Direction.ASC)Pageable pageable) {
+        return ResponseEntity.ok(departamentoService.obtenerDepartamentos(pageable));
     }
 
 }

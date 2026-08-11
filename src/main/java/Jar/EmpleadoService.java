@@ -5,6 +5,7 @@ import Jar.dto.EmpleadoResponseDTO;
 import Jar.dto.EmpleadoRequestDTO;
 import Jar.exception.DepartamentoNoEncontradoException;
 import Jar.exception.EmpleadoNoEncontradoException;
+import Jar.mapper.EmpleadoMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
@@ -14,10 +15,12 @@ public class EmpleadoService {
     //Inyectar el repositorio
     private final EmpleadoRepository empleadoRepository;
     private final DepartamentoRepository departamentoRepository;
+    private final EmpleadoMapper empleadoMapper;
 
-    public EmpleadoService(EmpleadoRepository empleadoRepository, DepartamentoRepository departamentoRepository) {
+    public EmpleadoService(EmpleadoRepository empleadoRepository, DepartamentoRepository departamentoRepository, EmpleadoMapper empleadoMapper) {
         this.empleadoRepository = empleadoRepository;
         this.departamentoRepository = departamentoRepository;
+        this.empleadoMapper = empleadoMapper;
     }
 
     public EmpleadoResponseDTO obtenerEmpleadoPorId(Long id){
@@ -104,13 +107,11 @@ public class EmpleadoService {
 
     public Page<EmpleadoResponseDTO> buscarTodosLosEmpleados(Pageable pageable){
         Page<Empleado> empleados = empleadoRepository.findAll(pageable);
-        Page<EmpleadoResponseDTO> empleadoResponseDTOS = empleados.map(this::convertirEmpleadoDTO);
-
-        return empleadoResponseDTOS;
+        return empleados.map(empleadoMapper::toDto);
     }
 
     //Convierte la Entidad Empleado a un EmpleadoDTO.
-    public EmpleadoResponseDTO convertirEmpleadoDTO(Empleado empleado){
+    private EmpleadoResponseDTO convertirEmpleadoDTO(Empleado empleado){
         EmpleadoResponseDTO empleadoResponseDTO = new EmpleadoResponseDTO();
         empleadoResponseDTO.setId(empleado.getId());
         empleadoResponseDTO.setNombreCompleto(empleado.getNombre() + " " + empleado.getApellido());
